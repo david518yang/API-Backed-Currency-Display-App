@@ -7,12 +7,28 @@
 
 import SwiftUI
 
+
 struct ExchangeListView: View {
+    @State var rates : ExchangeRate?
     var body: some View {
         ScrollView{
-            //fetched data
+            
+            if let rates {
+                Text(rates.base)
+                
+            }else{
+                ProgressView()
+            }
+        }
+        .task(id: "1"){
+            do{
+                rates = try await getRates(base:"USD",symbols:"EUR,JPY")
+            }catch{
+                fatalError("error")
+            }
         }
     }
+        
 }
 
 struct ExchangeListView_Previews: PreviewProvider {
