@@ -9,7 +9,9 @@ import SwiftUI
 
 struct ExchangeListView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ScrollView{
+            //fetched data
+        }
     }
 }
 
