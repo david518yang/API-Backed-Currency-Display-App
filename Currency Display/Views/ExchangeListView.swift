@@ -14,8 +14,10 @@ struct ExchangeListView: View {
         ScrollView{
             
             if let rates {
-                Text(rates.base)
-                
+                Text("Base: \(rates.base)")
+                Text("Date: \(rates.date)")
+                Spacer()
+                Text("1 \(rates.base) is equal to ...")
             }else{
                 ProgressView()
             }
@@ -23,6 +25,7 @@ struct ExchangeListView: View {
         .task(id: "1"){
             do{
                 rates = try await getRates(base:"USD",symbols:"EUR,JPY")
+                print(rates as Any)
             }catch{
                 fatalError("error")
             }

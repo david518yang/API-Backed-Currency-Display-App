@@ -12,5 +12,6 @@ struct ExchangeRate: Hashable, Codable {
     var base: String
     var date: String
     var rates: [String:Double]
+    var 
 }
 
