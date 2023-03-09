@@ -8,7 +8,8 @@
 import Foundation
 
 struct Currency: Hashable, Codable {
-    var symbol: String
-    var exchangeRate: Double
-    
+    var baseSymbol: String
+    var baseValue: Double
+    var exchangedSymbol: String
+    var exchangedValue: Double
 }
