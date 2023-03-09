@@ -41,7 +41,7 @@ struct ExchangeRow: View {
             }else if(currency.exchangedSymbol=="NZD"){
                 Text("\u{1F1F3}\u{1F1FF}")
             }else if(currency.exchangedSymbol=="INR"){
-                Text("\u{1F1EE}\{1F1F3}")
+                Text("\u{1F1EE}\u{1F1F3}")
             }else if(currency.exchangedSymbol=="MXN"){
                 Text("\u{1F1F2}\u{1F1FD}")
             }else if(currency.exchangedSymbol=="TWD"){
