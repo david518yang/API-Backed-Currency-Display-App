@@ -35,11 +35,22 @@ struct ExchangeListView: View {
     }
     
     var body: some View {
-        Text("Hello World!")
-            .padding()
-            .onAppear(){
-                formRequest(showAll: false)
+//        Text("Hello World!")
+//            .padding()
+//            .task(id: base){
+//                await formRequest(showAll: false)
+//            }
+        VStack {
+            List{
+                ForEach(currencyList, id: \.self) { currency in
+                    Text(currency)
+                }
             }
+        }
+        .task(id: base){
+            await formRequest(showAll:true)
+        }
+        
     }
 }
 
