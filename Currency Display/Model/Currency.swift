@@ -8,8 +8,8 @@
 import Foundation
 
 struct Currency: Hashable, Codable {
-    var baseSymbol: String
-    var baseValue: Double
-    var exchangedSymbol: String
-    var exchangedValue: Double
+    var success: Bool
+    var base: String
+    var date : String
+    var rates = [String: Double]()
 }

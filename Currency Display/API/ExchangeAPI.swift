@@ -15,26 +15,27 @@ enum ExchangeAPIError: Error {
     case badUrl
 }
 
-func getRates(base: String, symbols: String) async throws -> ExchangeRate {
-    guard let url = URL(string: "\(LATEST_ENDPOINT)?symbols=\(symbols)&base=\(base)") else {
+//func getRates(base: String, symbols: String) async throws -> Currency{
+//    guard let url = URL(string: "\(LATEST_ENDPOINT)?symbols=\(symbols)&base=\(base)") else {
+//        throw ExchangeAPIError.badUrl
+//    }
+//
+//    let (data, _) = try await URLSession.shared.data(from: url)
+//    if let decodedPage = try? JSONDecoder().decode(Currency.self, from: data) {
+//        return decodedPage
+//    } else {
+//        throw ExchangeAPIError.unsuccessfulDecode
+//    }
+//}
+
+func exchangeAmount(base: String, amount: Double) async throws -> Currency {
+    //&symbols=\(symbols)
+    guard let url = URL(string: "\(LATEST_ENDPOINT)?base=\(base)&amount=\(amount)") else {
         throw ExchangeAPIError.badUrl
     }
 
     let (data, _) = try await URLSession.shared.data(from: url)
-    if let decodedPage = try? JSONDecoder().decode(ExchangeRate.self, from: data) {
-        return decodedPage
-    } else {
-        throw ExchangeAPIError.unsuccessfulDecode
-    }
-}
-
-func exchangeAmount(base: String, symbols: String, amount: Double) async throws -> ExchangeRate {
-    guard let url = URL(string: "\(LATEST_ENDPOINT)?base=\(base)&symbols=\(symbols)&amount=\(amount)") else {
-        throw ExchangeAPIError.badUrl
-    }
-
-    let (data, _) = try await URLSession.shared.data(from: url)
-    if let decodedPage = try? JSONDecoder().decode(ExchangeRate.self, from: data) {
+    if let decodedPage = try? JSONDecoder().decode(Currency.self, from: data) {
         return decodedPage
     } else {
         throw ExchangeAPIError.unsuccessfulDecode

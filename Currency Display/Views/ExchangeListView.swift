@@ -9,29 +9,38 @@ import SwiftUI
 
 
 struct ExchangeListView: View {
-    @State var rates : ExchangeRate?
-    var body: some View {
-        ScrollView{
+    @State var base = "USD"
+    @State var amount = 100.0
+    @State var currencyList = [String]()
+    @FocusState private var inputFocused: Bool
+    
+    func formRequest(showAll: Bool, currencies: [String] = ["USD", "EUR", "JPY"]) async{
+        do {
+            let exchange = try await exchangeAmount(base: base,amount: amount)
             
-            if let rates {
-                Text("Base: \(rates.base)")
-                Text("Date: \(rates.date)")
-                Spacer()
-                Text("1 \(rates.base) is equal to ...")
-            }else{
-                ProgressView()
+            var tempList = [String]()
+            for currency in exchange.rates {
+                if showAll {
+                    tempList.append("\(currency.key) \(String(format: "%.2f", currency.value))")
+                }else if currencies.contains(currency.key){
+                    tempList.append("\(currency.key) \(String(format: "%.2f", currency.value))")
+                }
+                tempList.sort()
             }
-        }
-        .task(id: "1"){
-            do{
-                rates = try await getRates(base:"USD",symbols:"EUR,JPY")
-                print(rates as Any)
-            }catch{
-                fatalError("error")
-            }
+            currencyList.self = tempList
+            print(tempList)
+        }catch{
+            fatalError("error")
         }
     }
-        
+    
+    var body: some View {
+        Text("Hello World!")
+            .padding()
+            .onAppear(){
+                formRequest(showAll: false)
+            }
+    }
 }
 
 struct ExchangeListView_Previews: PreviewProvider {
