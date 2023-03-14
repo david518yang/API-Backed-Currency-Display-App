@@ -28,7 +28,7 @@ enum ExchangeAPIError: Error {
 //    }
 //}
 
-func exchangeAmount(base: String, amount: Double) async throws -> Currency {
+func exchangeAmount(base: String, amount: String) async throws -> Currency {
     //&symbols=\(symbols)
     guard let url = URL(string: "\(LATEST_ENDPOINT)?base=\(base)&amount=\(amount)") else {
         throw ExchangeAPIError.badUrl
