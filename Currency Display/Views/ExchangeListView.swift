@@ -11,7 +11,9 @@ import SwiftUI
 struct ExchangeListView: View {
     @State var base = "USD"
     @State var amount = "100.00"
+    @State var refresh = 0
     @State var currencyList = [String]()
+    @State var baseList = [String]()
     @FocusState private var inputFocused: Bool
     
     func formRequest(showAll: Bool, currencies: [String]) async{
@@ -25,10 +27,11 @@ struct ExchangeListView: View {
                 }else if currencies.contains(currency.key){
                     tempList.append("\(currency.key) \(String(format: "%.2f", currency.value))")
                 }
+                baseList.self.append("\(currency.key)")
                 tempList.sort()
+                baseList.self.sort()
             }
             currencyList.self = tempList
-            print(tempList)
         }catch{
             fatalError("error")
         }
@@ -66,20 +69,26 @@ struct ExchangeListView: View {
                     .padding()
                     .keyboardType(.decimalPad)
                     .focused($inputFocused)
-                TextField("Currency Base",text:$base)
-                    .padding()
-                    .background(Color.gray.opacity(0.2))
-                    .cornerRadius(50)
-                    .padding()
-                    .focused($inputFocused)
-                Button("Click to Convert"){
-                    Task{
-                        await formRequest(showAll:false, currencies:["GBP","CHF","AUD"])
+//                TextField("Currency Base",text:$base)
+//                    .padding()
+//                    .background(Color.gray.opacity(0.2))
+//                    .cornerRadius(50)
+//                    .padding()
+//                    .focused($inputFocused)
+                List{
+                    Picker("Currency Base",selection:$base){
+                        ForEach(baseList, id: \.self){ base in
+                            Text(base)
+                        }
                     }
-                    inputFocused=false
-                }.padding()
+                    .frame(width: 350.0, height: 150)
+                    .pickerStyle(.wheel)
+                }
+                Button("Convert"){
+                    refresh += 1
+                }
             }
-        }.task(id: base){
+        }.task(id: refresh){
             await formRequest(showAll:true, currencies:["USD", "EUR", "JPY"])
         }
         
