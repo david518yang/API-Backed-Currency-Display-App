@@ -13,7 +13,7 @@
 //    var body: some View {
 //        Text("H")
 //        HStack{
-//            //flag
+////            flag
 ////            if(currency.exchangedSymbol=="USD"){
 ////                Text("\u{1F1FA}\u{1F1F8}")
 ////            }else if(currency.exchangedSymbol=="EUR"){
