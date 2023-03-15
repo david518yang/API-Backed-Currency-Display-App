@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ConfettiSwiftUI
 
 
 struct ExchangeListView: View {
@@ -14,7 +15,7 @@ struct ExchangeListView: View {
     @State var refresh = 0
     @State var currencyDict = [String:String]()
     @State var completeBaseList = [String]()
-    @State var chosenSymbol: "USD"
+    @State var chosenSymbol = "USD"
     @FocusState private var inputFocused: Bool
     
     func formRequest(showAll: Bool, currencies: [String]) async{
@@ -22,9 +23,9 @@ struct ExchangeListView: View {
             let exchange = try await exchangeAmount(base: base,amount: amount)
             for currency in exchange.rates {
                 if showAll {
-                    currencyDict.updateValue("\(currency.value)", forKey: currency.key)
+                    currencyDict.updateValue("\(String(format: "%.2f",currency.value))", forKey: currency.key)
                 }else if currencies.contains(currency.key){
-                    currencyDict.updateValue("\(currency.value)", forKey: currency.key)
+                    currencyDict.updateValue("\(String(format: "%.2f",currency.value))", forKey: currency.key)
                 }
                 completeBaseList.self.append("\(currency.key)")
             }
@@ -81,6 +82,7 @@ struct ExchangeListView: View {
     }
     
     var body: some View {
+        NavigationView {
         VStack {
             //Headline
             HStack{
@@ -100,7 +102,7 @@ struct ExchangeListView: View {
                         Text(flag+key)
                         Spacer()
                         switch key{
-                        case "USD","BRL","ETB","MOP","NIO","WST","TOP","MYR":
+                        case "USD","AUD","CAD","BRL","ETB","MOP","NIO","WST","TOP","MYR":
                             Text("$\(value)")
                         case "EUR":
                             Text("\u{20AC}\(value)")
@@ -125,52 +127,60 @@ struct ExchangeListView: View {
                     .frame(height:8.0)
                     .foregroundColor(.accentColor)
                     .opacity(0.7)
-                TextField("Amount to convert",text:$amount)
-                    .padding()
-                    .background(Color.gray.opacity(0.2))
-                    .cornerRadius(50)
-                    .padding()
-                    .keyboardType(.decimalPad)
-                    .focused($inputFocused)
-//                TextField("Currency Base",text:$base)
-//                    .padding()
-//                    .background(Color.gray.opacity(0.2))
-//                    .cornerRadius(50)
-//                    .padding()
-//                    .focused($inputFocused)
-                List{
-                    Picker(selection:$base, label: Text("Currency Base")){
-                        ForEach(completeBaseList, id: \.self){ base in
-                            Text(base)
-                        }
-                    }
-                    .frame(width: 350.0, height: 150)
-                    .pickerStyle(.wheel)
-                }
                 
-                NavigationView {
-                    Form {
-                        Section {
-                            Picker(selection: $chosenSymbol, label: Text("Select Currency to Convert to")) {
-                                ForEach(completeBaseList,id:\.self) { base in
+                HStack{
+                    //Amount Selection
+                    VStack{
+                        Text("Amount to convert")
+                            .font(.title3)
+                        TextField("Amount",text:$amount)
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(50)
+                            .padding()
+                            .keyboardType(.decimalPad)
+                            .focused($inputFocused)
+                    }
+                    //Base Selection
+                    VStack {
+                        Text("Currency Base")
+                            .font(.title3)
+                        List{
+                            Picker("Currency Base", selection:$base){
+                                ForEach(completeBaseList, id: \.self){ base in
                                     Text(base)
                                 }
-                          }
-                     }.navigationBarTitle(Text("Currencies"), displayMode: .inline)
-                }
+                            }
+                            .frame(width: 150, height: 80)
+                            .pickerStyle(.wheel)
+                        }
+                    }
+                }.frame(height:190)
                 
+                //Conversion Selection
+                Form {
+                    Section {
+                        Picker("Select Currency to Convert to",selection: $chosenSymbol) {
+                            ForEach(completeBaseList,id: \.self) { base in
+                                Text(base)
+                            }
+                        }.pickerStyle(.navigationLink)
+                    }
+                }
+            
+                //Convert Button
                 Button("Convert"){
                     refresh += 1
-                }
+                }.confettiCannon(counter: $refresh, num:1, confettis: [.text("\u{1F4B5}"), .text("\u{1F4B6}"), .text("\u{1F4B7}"), .text("\u{1F4B4}")], confettiSize: 30, repetitions: 10, repetitionInterval: 0.1)
             }
-        }.task(id: refresh){
-            await formRequest(showAll:true, currencies:[chosenSymbol])
+            }.task(id: refresh){
+                await formRequest(showAll:false, currencies:[chosenSymbol])
+            }
         }
     }
 }
-
-struct ExchangeListView_Previews: PreviewProvider {
-    static var previews: some View {
-        ExchangeListView()
+    struct ExchangeListView_Previews: PreviewProvider {
+        static var previews: some View {
+            ExchangeListView()
+        }
     }
-}
