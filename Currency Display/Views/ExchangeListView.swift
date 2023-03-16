@@ -15,7 +15,7 @@ struct ExchangeListView: View {
     @State var refresh = 0
     @State var currencyDict = [String:String]()
     @State var completeBaseList = [String]()
-    @State var chosenSymbol = "USD"
+    @State var chosenSymbols = Set<String>()
     @FocusState private var inputFocused: Bool
     
     func formRequest(showAll: Bool, currencies: [String]) async{
@@ -83,99 +83,108 @@ struct ExchangeListView: View {
     
     var body: some View {
         NavigationView {
-        VStack {
-            //Headline
-            HStack{
-                Text("Currency Display")
-                    .font(.system(size:25))
-                    .bold()
-                Image(systemName: "dollarsign.circle.fill")
-                    .font(.system(size:25))
-                    .foregroundColor(.green)
-            }
-            
-            //Currency List
-            List{
-                ForEach(currencyDict.sorted(by:<), id: \.key) { key,value in
-                    let flag = chooseFlag(key:key)
-                    HStack{
-                        Text(flag+key)
-                        Spacer()
-                        switch key{
-                        case "USD","AUD","CAD","BRL","ETB","MOP","NIO","WST","TOP","MYR":
-                            Text("$\(value)")
-                        case "EUR":
-                            Text("\u{20AC}\(value)")
-                        case "GBP":
-                            Text("\u{00AC}\(value)")
-                        case "JPY":
-                            Text("\u{00A5}\(value)")
-                        case "CHF":
-                            Text("\u{20A3}\(value)")
-                        case "INR","IDR":
-                            Text("\u{20B9}\(value)")
-                        default:
-                            Text(value)
-                        }
-                    }
-                }
-            }
-            
-            //User Entry
-            VStack{
-                Rectangle()
-                    .frame(height:8.0)
-                    .foregroundColor(.accentColor)
-                    .opacity(0.7)
-                
+            VStack {
+                //Headline
                 HStack{
-                    //Amount Selection
-                    VStack{
-                        Text("Amount to convert")
-                            .font(.title3)
-                        TextField("Amount",text:$amount)
-                            .padding()
-                            .background(Color.gray.opacity(0.2))
-                            .cornerRadius(50)
-                            .padding()
-                            .keyboardType(.decimalPad)
-                            .focused($inputFocused)
-                    }
-                    //Base Selection
-                    VStack {
-                        Text("Currency Base")
-                            .font(.title3)
-                        List{
-                            Picker("Currency Base", selection:$base){
-                                ForEach(completeBaseList, id: \.self){ base in
-                                    Text(base)
-                                }
+                    Text("Currency Display")
+                        .font(.system(size:25))
+                        .bold()
+                    Image(systemName: "dollarsign.circle.fill")
+                        .font(.system(size:25))
+                        .foregroundColor(.green)
+                }
+            
+                //Currency List
+                List{
+                    ForEach(currencyDict.sorted(by:<), id: \.key) { key,value in
+                        let flag = chooseFlag(key:key)
+                        HStack{
+                            Text(flag+key)
+                            Spacer()
+                            switch key{
+                            case "USD","AUD","CAD","BRL","ETB","MOP","NIO","WST","TOP","MYR":
+                                Text("$\(value)")
+                            case "EUR":
+                                Text("\u{20AC}\(value)")
+                            case "GBP":
+                                Text("\u{00AC}\(value)")
+                            case "JPY":
+                                Text("\u{00A5}\(value)")
+                            case "CHF":
+                                Text("\u{20A3}\(value)")
+                            case "INR","IDR":
+                                Text("\u{20B9}\(value)")
+                            default:
+                                Text(value)
                             }
-                            .frame(width: 150, height: 80)
-                            .pickerStyle(.wheel)
                         }
-                    }
-                }.frame(height:190)
-                
-                //Conversion Selection
-                Form {
-                    Section {
-                        Picker("Select Currency to Convert to",selection: $chosenSymbol) {
-                            ForEach(completeBaseList,id: \.self) { base in
-                                Text(base)
-                            }
-                        }.pickerStyle(.navigationLink)
                     }
                 }
             
-                //Convert Button
-                Button("Convert"){
-                    refresh += 1
-                }.confettiCannon(counter: $refresh, num:1, confettis: [.text("\u{1F4B5}"), .text("\u{1F4B6}"), .text("\u{1F4B7}"), .text("\u{1F4B4}")], confettiSize: 30, repetitions: 10, repetitionInterval: 0.1)
-            }
-            }.task(id: refresh){
-                await formRequest(showAll:false, currencies:[chosenSymbol])
-            }
+                //User Entry
+                VStack{
+                    Rectangle()
+                        .frame(height:8.0)
+                        .foregroundColor(.accentColor)
+                        .opacity(0.7)
+                    
+                    HStack{
+                        //Amount Selection
+                        VStack{
+                            Text("Amount to convert")
+                                .font(.title3)
+                            TextField("Amount",text:$amount)
+                                .padding()
+                                .background(Color.gray.opacity(0.2))
+                                .cornerRadius(50)
+                                .padding()
+                                .keyboardType(.decimalPad)
+                                .focused($inputFocused)
+                        }
+                        //Base Selection
+                        VStack {
+                            Text("Currency Base")
+                                .font(.title3)
+                            List{
+                                Picker("Currency Base", selection:$base){
+                                    ForEach(completeBaseList, id: \.self){ base in
+                                        Text(base)
+                                    }
+                                }
+                                .frame(width: 150, height: 80)
+                                .pickerStyle(.wheel)
+                            }
+                        }
+                    }.frame(height:190)
+                    
+                    //Conversion Selection
+    //                Form {
+    //                    Section {
+    //                        Picker("Select Currency to Convert to",selection: $chosenSymbol) {
+    //                            ForEach(completeBaseList,id: \.self) { base in
+    //                                Text(base)
+    //                            }
+    //                        }.pickerStyle(.navigationLink)
+    //                    }
+    //                }
+                    
+                    // NAVIGATE TO CURRENCYSELECTIONVIEW HERE
+                    NavigationLink("Select Currencies to Convert to"){
+                        CurrencySelectionView(completeBaseList :completeBaseList)
+                    }
+                    .frame(width:400,height:50)
+                    .buttonStyle(.borderedProminent)
+                    .font(.headline)
+                    .cornerRadius(20)
+                    
+                    //Convert Button
+                    Button("Convert"){
+                        refresh += 1
+                    }.confettiCannon(counter: $refresh, num:1, confettis: [.text("\u{1F4B5}"), .text("\u{1F4B6}"), .text("\u{1F4B7}"), .text("\u{1F4B4}")], confettiSize: 30, repetitions: 10, repetitionInterval: 0.1)
+                }
+                }.task(id: refresh){
+                    await formRequest(showAll:true, currencies:["USD"])
+                }
         }
     }
 }
