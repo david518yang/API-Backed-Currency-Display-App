@@ -9,8 +9,8 @@ import SwiftUI
 
 struct CurrencySelectionView: View {
     var completeBaseList = [String]()
-    @State var chosenSymbols = Set<String>()
-    @State var isEditing = false
+    @Binding var chosenSymbols: Set<String>
+    @Environment(\.editMode) var isEditing
     
     var body: some View {
         NavigationView{
@@ -20,27 +20,24 @@ struct CurrencySelectionView: View {
                 }
             }
             .navigationTitle("Selected \(chosenSymbols.count) currencies")
-            .navigationBarItems(trailing:Button(action: {
-                isEditing.toggle()
-            },label:{
-                if self.isEditing{
-                    Text("Done")
-                        .fontWeight(.bold)
-                        .foregroundColor(.red)
-                }else{
-                    Text("Edit")
-                        .foregroundColor(.accentColor)
-                }
-            }))
+            
+            .navigationBarItems(trailing: EditButton())
             .listStyle(.inset)
-            .environment(\.editMode, .constant(self.isEditing ? .active : .inactive))
-            .animation(.spring(), value: isEditing )
+
+            .animation(.spring(), value: isEditing?.wrappedValue.isEditing )
         }
     }
 }
 
 struct CurrencySelectionView_Previews: PreviewProvider {
+//    var set = Set<String>()
     static var previews: some View {
-        CurrencySelectionView()
+//        CurrencySelectionView(completeBaseList: [
+//            "USD",
+//            "Simoleons",
+//            "Star Wars Credits",
+//            "Gold Pieces"
+//        ], chosenSet: $set)
+        Text("TBD")
     }
 }

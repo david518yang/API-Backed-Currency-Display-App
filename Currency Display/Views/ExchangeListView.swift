@@ -15,8 +15,9 @@ struct ExchangeListView: View {
     @State var refresh = 0
     @State var currencyDict = [String:String]()
     @State var completeBaseList = [String]()
-    @State var chosenSymbols = Set<String>()
+    @State var chosenSymbols = [String]()
     @FocusState private var inputFocused: Bool
+    @State var selections: [String] = []
     
     func formRequest(showAll: Bool, currencies: [String]) async{
         do {
@@ -82,6 +83,12 @@ struct ExchangeListView: View {
     }
     
     var body: some View {
+        //        let chosenSymbolsBinding = Binding(get: {
+        //            chosenSymbols
+        //        }, set: {
+        //            chosenSymbols = $0
+        //        })
+        
         NavigationView {
             VStack {
                 //Headline
@@ -93,7 +100,7 @@ struct ExchangeListView: View {
                         .font(.system(size:25))
                         .foregroundColor(.green)
                 }
-            
+                
                 //Currency List
                 List{
                     ForEach(currencyDict.sorted(by:<), id: \.key) { key,value in
@@ -120,7 +127,7 @@ struct ExchangeListView: View {
                         }
                     }
                 }
-            
+                
                 //User Entry
                 VStack{
                     Rectangle()
@@ -158,19 +165,31 @@ struct ExchangeListView: View {
                     }.frame(height:190)
                     
                     //Conversion Selection
-    //                Form {
-    //                    Section {
-    //                        Picker("Select Currency to Convert to",selection: $chosenSymbol) {
-    //                            ForEach(completeBaseList,id: \.self) { base in
-    //                                Text(base)
-    //                            }
-    //                        }.pickerStyle(.navigationLink)
-    //                    }
-    //                }
+                    //                Form {
+                    //                    Section {
+                    //                        Picker("Select Currency to Convert to",selection: $chosenSymbol) {
+                    //                            ForEach(completeBaseList,id: \.self) { base in
+                    //                                Text(base)
+                    //                            }
+                    //                        }.pickerStyle(.navigationLink)
+                    //                    }
+                    //                }
                     
                     // NAVIGATE TO CURRENCYSELECTIONVIEW HERE
                     NavigationLink("Select Currencies to Convert to"){
-                        CurrencySelectionView(completeBaseList :completeBaseList)
+                        //                        CurrencySelectionView(completeBaseList :completeBaseList, chosenSymbols: $chosenSymbols)
+                        List {
+                            ForEach(completeBaseList, id: \.self) { item in
+                                MultiSelectionRow(title: item, isSelected: self.chosenSymbols.contains(item)) {
+                                    if self.chosenSymbols.contains(item) {
+                                        self.chosenSymbols.removeAll(where: { $0 == item })
+                                    }
+                                    else {
+                                        self.chosenSymbols.append(item)
+                                    }
+                                }
+                            }
+                        }
                     }
                     .frame(width:400,height:50)
                     .buttonStyle(.borderedProminent)
@@ -179,17 +198,17 @@ struct ExchangeListView: View {
                     
                     //Convert Button
                     Button("Convert"){
-                        refresh += 1
+                        Task {
+                            await formRequest(showAll:false, currencies: chosenSymbols)
+                        }
                     }.confettiCannon(counter: $refresh, num:1, confettis: [.text("\u{1F4B5}"), .text("\u{1F4B6}"), .text("\u{1F4B7}"), .text("\u{1F4B4}")], confettiSize: 30, repetitions: 10, repetitionInterval: 0.1)
                 }
-                }.task(id: refresh){
-                    await formRequest(showAll:true, currencies:["USD"])
-                }
+            }
         }
     }
 }
-    struct ExchangeListView_Previews: PreviewProvider {
-        static var previews: some View {
-            ExchangeListView()
-        }
+struct ExchangeListView_Previews: PreviewProvider {
+    static var previews: some View {
+        ExchangeListView()
     }
+}

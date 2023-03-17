@@ -19,6 +19,8 @@
 		3DD0F8FA29B6F681000833EE /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD0F8F929B6F681000833EE /* Currency.swift */; };
 		3DD0F8FD29C2644C000833EE /* ConfettiSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 3DD0F8FC29C2644C000833EE /* ConfettiSwiftUI */; };
 		3DD0F90129C3BF7D000833EE /* CurrencySelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD0F90029C3BF7D000833EE /* CurrencySelectionView.swift */; };
+		685F6AC129C3E62C00A68B4B /* MultiSelectionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 685F6AC029C3E62C00A68B4B /* MultiSelectionRow.swift */; };
+		685F6AC329C3E76000A68B4B /* MultipleSelectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 685F6AC229C3E76000A68B4B /* MultipleSelectionList.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +55,8 @@
 		3D7302F329A4980D00E10D7B /* ExchangeListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeListView.swift; sourceTree = "<group>"; };
 		3DD0F8F929B6F681000833EE /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 		3DD0F90029C3BF7D000833EE /* CurrencySelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySelectionView.swift; sourceTree = "<group>"; };
+		685F6AC029C3E62C00A68B4B /* MultiSelectionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiSelectionRow.swift; sourceTree = "<group>"; };
+		685F6AC229C3E76000A68B4B /* MultipleSelectionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleSelectionList.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +165,8 @@
 			children = (
 				3D7302F329A4980D00E10D7B /* ExchangeListView.swift */,
 				3DD0F90029C3BF7D000833EE /* CurrencySelectionView.swift */,
+				685F6AC029C3E62C00A68B4B /* MultiSelectionRow.swift */,
+				685F6AC229C3E76000A68B4B /* MultipleSelectionList.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -305,6 +311,8 @@
 				3D7302C529A43AC500E10D7B /* ContentView.swift in Sources */,
 				3D7302C329A43AC500E10D7B /* Currency_DisplayApp.swift in Sources */,
 				3D7302F029A43BBC00E10D7B /* ExchangeAPI.swift in Sources */,
+				685F6AC329C3E76000A68B4B /* MultipleSelectionList.swift in Sources */,
+				685F6AC129C3E62C00A68B4B /* MultiSelectionRow.swift in Sources */,
 				3DD0F90129C3BF7D000833EE /* CurrencySelectionView.swift in Sources */,
 				3DD0F8FA29B6F681000833EE /* Currency.swift in Sources */,
 			);
