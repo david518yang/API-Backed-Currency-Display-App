@@ -14,23 +14,28 @@ struct ExchangeListView: View {
     @State var amount = "100.00"
     @State var refresh = 0
     @State var currencyDict = [String:String]()
+    @State var tempBaseList = [String]()
     @State var completeBaseList = [String]()
     @State var chosenSymbols = [String]()
+    @State var showAll = false
     @FocusState private var inputFocused: Bool
     @State var selections: [String] = []
     
     func formRequest(showAll: Bool, currencies: [String]) async{
         do {
             let exchange = try await exchangeAmount(base: base,amount: amount)
+            tempBaseList.removeAll()
             for currency in exchange.rates {
                 if showAll {
                     currencyDict.updateValue("\(String(format: "%.2f",currency.value))", forKey: currency.key)
                 }else if currencies.contains(currency.key){
                     currencyDict.updateValue("\(String(format: "%.2f",currency.value))", forKey: currency.key)
                 }
-                completeBaseList.self.append("\(currency.key)")
+                tempBaseList.self.append(currency.key)
+                tempBaseList.sort()
             }
-            completeBaseList.self.sort()
+            completeBaseList = tempBaseList
+            
         }catch{
             fatalError("error")
         }
@@ -83,12 +88,6 @@ struct ExchangeListView: View {
     }
     
     var body: some View {
-        //        let chosenSymbolsBinding = Binding(get: {
-        //            chosenSymbols
-        //        }, set: {
-        //            chosenSymbols = $0
-        //        })
-        
         NavigationView {
             VStack {
                 //Headline
@@ -114,13 +113,15 @@ struct ExchangeListView: View {
                             case "EUR":
                                 Text("\u{20AC}\(value)")
                             case "GBP":
-                                Text("\u{00AC}\(value)")
+                                Text("\u{00A3}\(value)")
                             case "JPY":
                                 Text("\u{00A5}\(value)")
                             case "CHF":
                                 Text("\u{20A3}\(value)")
                             case "INR","IDR":
                                 Text("\u{20B9}\(value)")
+                            case "KRW":
+                                Text("\u{20A9}\(value)")
                             default:
                                 Text(value)
                             }
@@ -164,21 +165,11 @@ struct ExchangeListView: View {
                         }
                     }.frame(height:190)
                     
-                    //Conversion Selection
-                    //                Form {
-                    //                    Section {
-                    //                        Picker("Select Currency to Convert to",selection: $chosenSymbol) {
-                    //                            ForEach(completeBaseList,id: \.self) { base in
-                    //                                Text(base)
-                    //                            }
-                    //                        }.pickerStyle(.navigationLink)
-                    //                    }
-                    //                }
-                    
-                    // NAVIGATE TO CURRENCYSELECTIONVIEW HERE
+                    //Currency Conversion Selection
                     NavigationLink("Select Currencies to Convert to"){
-                        //                        CurrencySelectionView(completeBaseList :completeBaseList, chosenSymbols: $chosenSymbols)
                         List {
+//                            Toggle("Choose All Currencies", isOn:$showAll)
+                            
                             ForEach(completeBaseList, id: \.self) { item in
                                 MultiSelectionRow(title: item, isSelected: self.chosenSymbols.contains(item)) {
                                     if self.chosenSymbols.contains(item) {
@@ -189,7 +180,7 @@ struct ExchangeListView: View {
                                     }
                                 }
                             }
-                        }
+                        }.navigationTitle("Selected \(chosenSymbols.count) currencies")
                     }
                     .frame(width:400,height:50)
                     .buttonStyle(.borderedProminent)
@@ -197,12 +188,14 @@ struct ExchangeListView: View {
                     .cornerRadius(20)
                     
                     //Convert Button
-                    Button("Convert"){
-                        Task {
-                            await formRequest(showAll:false, currencies: chosenSymbols)
-                        }
+                    Button("Convert!"){
+                        refresh+=1
                     }.confettiCannon(counter: $refresh, num:1, confettis: [.text("\u{1F4B5}"), .text("\u{1F4B6}"), .text("\u{1F4B7}"), .text("\u{1F4B4}")], confettiSize: 30, repetitions: 10, repetitionInterval: 0.1)
+                        .buttonStyle(.bordered)
+                        .foregroundColor(.green)
                 }
+            }.task(id: refresh){
+                await formRequest(showAll:showAll, currencies:chosenSymbols)
             }
         }
     }
