@@ -18,10 +18,12 @@ struct ExchangeListView: View {
     @State var completeBaseList = [String]()
     @State var chosenSymbols = [String]()
     @State var showAll = false
+    @State var loading = false
     @FocusState private var inputFocused: Bool
     @State var selections: [String] = []
     
     func formRequest(showAll: Bool, currencies: [String]) async{
+        loading = true
         do {
             let exchange = try await exchangeAmount(base: base,amount: amount)
             tempBaseList.removeAll()
@@ -35,7 +37,7 @@ struct ExchangeListView: View {
                 tempBaseList.sort()
             }
             completeBaseList = tempBaseList
-            
+            loading = false
         }catch{
             fatalError("error")
         }
@@ -101,29 +103,33 @@ struct ExchangeListView: View {
                 }
                 
                 //Currency List
-                List{
-                    ForEach(currencyDict.sorted(by:<), id: \.key) { key,value in
-                        let flag = chooseFlag(key:key)
-                        HStack{
-                            Text(flag+key)
-                            Spacer()
-                            switch key{
-                            case "USD","AUD","CAD","BRL","ETB","MOP","NIO","WST","TOP","MYR":
-                                Text("$\(value)")
-                            case "EUR":
-                                Text("\u{20AC}\(value)")
-                            case "GBP":
-                                Text("\u{00A3}\(value)")
-                            case "JPY":
-                                Text("\u{00A5}\(value)")
-                            case "CHF":
-                                Text("\u{20A3}\(value)")
-                            case "INR","IDR":
-                                Text("\u{20B9}\(value)")
-                            case "KRW":
-                                Text("\u{20A9}\(value)")
-                            default:
-                                Text(value)
+                if loading {
+                    ProgressView()
+                }else{
+                    List{
+                        ForEach(currencyDict.sorted(by:<), id: \.key) { key,value in
+                            let flag = chooseFlag(key:key)
+                            HStack{
+                                Text(flag+key)
+                                Spacer()
+                                switch key{
+                                case "USD","AUD","CAD","BRL","ETB","MOP","NIO","WST","TOP","MYR":
+                                    Text("$\(value)")
+                                case "EUR":
+                                    Text("\u{20AC}\(value)")
+                                case "GBP":
+                                    Text("\u{00A3}\(value)")
+                                case "JPY":
+                                    Text("\u{00A5}\(value)")
+                                case "CHF":
+                                    Text("\u{20A3}\(value)")
+                                case "INR","IDR":
+                                    Text("\u{20B9}\(value)")
+                                case "KRW":
+                                    Text("\u{20A9}\(value)")
+                                default:
+                                    Text(value)
+                                }
                             }
                         }
                     }
