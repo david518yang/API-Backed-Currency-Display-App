@@ -15,6 +15,24 @@ enum ExchangeAPIError: Error {
     case badUrl
 }
 
+func getBaseList() async throws -> [String] {
+    var completeBaseList = [String]()
+    
+    guard let url = URL(string: LATEST_ENDPOINT) else {
+        throw ExchangeAPIError.badUrl
+    }
+    let (data, _) = try await URLSession.shared.data(from: url)
+    if let decodedPage = try? JSONDecoder().decode(Currency.self, from: data) {
+        for currency in decodedPage.rates{
+                completeBaseList.append(currency.key)
+        }
+        completeBaseList.sort()
+        return completeBaseList
+    } else {
+        throw ExchangeAPIError.unsuccessfulDecode
+    }
+}
+
 func exchangeAmount(base: String, amount: String) async throws -> Currency {
     //&symbols=\(symbols)
     guard let url = URL(string: "\(LATEST_ENDPOINT)?base=\(base)&amount=\(amount)") else {

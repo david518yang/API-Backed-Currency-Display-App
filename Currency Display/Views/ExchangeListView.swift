@@ -27,6 +27,9 @@ struct ExchangeListView: View {
         do {
             let exchange = try await exchangeAmount(base: base,amount: amount)
             tempBaseList.removeAll()
+            if !showAll{
+                currencyDict.removeAll()
+            }
             for currency in exchange.rates {
                 if showAll {
                     currencyDict.updateValue("\(String(format: "%.2f",currency.value))", forKey: currency.key)
@@ -106,29 +109,35 @@ struct ExchangeListView: View {
                 if loading {
                     ProgressView()
                 }else{
-                    List{
-                        ForEach(currencyDict.sorted(by:<), id: \.key) { key,value in
-                            let flag = chooseFlag(key:key)
-                            HStack{
-                                Text(flag+key)
-                                Spacer()
-                                switch key{
-                                case "USD","AUD","CAD","BRL","ETB","MOP","NIO","WST","TOP","MYR":
-                                    Text("$\(value)")
-                                case "EUR":
-                                    Text("\u{20AC}\(value)")
-                                case "GBP":
-                                    Text("\u{00A3}\(value)")
-                                case "JPY":
-                                    Text("\u{00A5}\(value)")
-                                case "CHF":
-                                    Text("\u{20A3}\(value)")
-                                case "INR","IDR":
-                                    Text("\u{20B9}\(value)")
-                                case "KRW":
-                                    Text("\u{20A9}\(value)")
-                                default:
-                                    Text(value)
+                    if refresh == 0{
+                        Spacer()
+                        Text("Nothing to display yet")
+                        Spacer()
+                    }else{
+                        List{
+                            ForEach(currencyDict.sorted(by:<), id: \.key) { key,value in
+                                let flag = chooseFlag(key:key)
+                                HStack{
+                                    Text(flag+key)
+                                    Spacer()
+                                    switch key{
+                                    case "USD","AUD","CAD","BRL","ETB","MOP","NIO","WST","TOP","MYR":
+                                        Text("$\(value)")
+                                    case "EUR":
+                                        Text("\u{20AC}\(value)")
+                                    case "GBP":
+                                        Text("\u{00A3}\(value)")
+                                    case "JPY","CNY":
+                                        Text("\u{00A5}\(value)")
+                                    case "CHF":
+                                        Text("\u{20A3}\(value)")
+                                    case "INR","IDR":
+                                        Text("\u{20B9}\(value)")
+                                    case "KRW":
+                                        Text("\u{20A9}\(value)")
+                                    default:
+                                        Text(value)
+                                    }
                                 }
                             }
                         }
@@ -174,19 +183,23 @@ struct ExchangeListView: View {
                     //Currency Conversion Selection
                     NavigationLink("Select Currencies to Convert to"){
                         List {
-//                            Toggle("Choose All Currencies", isOn:$showAll)
+                            Toggle("Choose All Currencies", isOn:$showAll)
                             
-                            ForEach(completeBaseList, id: \.self) { item in
-                                MultiSelectionRow(title: item, isSelected: self.chosenSymbols.contains(item)) {
-                                    if self.chosenSymbols.contains(item) {
-                                        self.chosenSymbols.removeAll(where: { $0 == item })
-                                    }
-                                    else {
-                                        self.chosenSymbols.append(item)
+                            if showAll {
+                                Text("All currencies selected")
+                            }else{
+                                ForEach(completeBaseList, id: \.self) { item in
+                                    MultiSelectionRow(title: item, isSelected: self.chosenSymbols.contains(item)) {
+                                        if self.chosenSymbols.contains(item) {
+                                            self.chosenSymbols.removeAll(where: { $0 == item })
+                                        }
+                                        else {
+                                            self.chosenSymbols.append(item)
+                                        }
                                     }
                                 }
                             }
-                        }.navigationTitle("Selected \(chosenSymbols.count) currencies")
+                        }.navigationTitle("Selected \(showAll ? completeBaseList.count : chosenSymbols.count) currencies")
                     }
                     .frame(width:400,height:50)
                     .buttonStyle(.borderedProminent)
@@ -195,13 +208,21 @@ struct ExchangeListView: View {
                     
                     //Convert Button
                     Button("Convert!"){
+                        Task{
+                            await formRequest(showAll:showAll, currencies:chosenSymbols)
+                        }
                         refresh+=1
                     }.confettiCannon(counter: $refresh, num:1, confettis: [.text("\u{1F4B5}"), .text("\u{1F4B6}"), .text("\u{1F4B7}"), .text("\u{1F4B4}")], confettiSize: 30, repetitions: 10, repetitionInterval: 0.1)
                         .buttonStyle(.bordered)
                         .foregroundColor(.green)
                 }
             }.task(id: refresh){
-                await formRequest(showAll:showAll, currencies:chosenSymbols)
+                do{
+                    completeBaseList = try await getBaseList()
+                }catch{
+                    fatalError("error")
+                }
+
             }
         }
     }
